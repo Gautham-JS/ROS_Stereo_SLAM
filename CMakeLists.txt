@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(rosVO)
+project(ros_slam)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 add_compile_options(-std=c++11)
@@ -18,6 +18,7 @@ find_package(catkin REQUIRED COMPONENTS
 )
 find_package(OpenCV REQUIRED)
 find_package(PCL 1.2 REQUIRED)
+
 
 SET( EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 ## System dependencies are found with CMake's conventions
@@ -154,17 +155,25 @@ add_executable(
   stereo include/stereoCV.h src/StereoCV.cpp
 )
 add_executable(
-	visualOdometry
-	${PROJECT_SOURCE_DIR}/visualOdometry/include/DloopDet.h
-	${PROJECT_SOURCE_DIR}/visualOdometry/include/monoUtils.h 
-	${PROJECT_SOURCE_DIR}/visualOdometry/include/poseGraph.h
-	${PROJECT_SOURCE_DIR}/visualOdometry/VisualOdometry.cpp
+	visualSLAM
+	${PROJECT_SOURCE_DIR}/visualSLAM/include/DloopDet.h
+	${PROJECT_SOURCE_DIR}/visualSLAM/include/monoUtils.h 
+	${PROJECT_SOURCE_DIR}/visualSLAM/include/poseGraph.h
+	${PROJECT_SOURCE_DIR}/visualSLAM/src/VisualSLAM.cpp
 )
 
 target_link_libraries(stereo ${OpenCV_LIBS} ${PCL_LIBRARIES} ${catkin_LIBRARIES} )
 
 target_link_libraries(
-	visualOdometry ${OpenCV_LIBS} ${PCL_LIBRARIES} ${catkin_LIBRARIES} ${G2O_LIBS} ${CSPARSE_LIBS} ${DLib_LIBS} ${DBoW2_LIBS} DLib DBoW2 g2o_core g2o_stuff g2o_types_sba g2o_csparse_extension g2o_types_slam3d
+  visualSLAM 
+  ${OpenCV_LIBS} 
+  ${PCL_LIBRARIES} 
+  ${catkin_LIBRARIES} 
+  ${G2O_LIBS} 
+  ${CSPARSE_LIBS} 
+  ${DLib_LIBS} 
+  ${DBoW2_LIBS} 
+  DLib DBoW2 g2o_core g2o_stuff g2o_types_sba g2o_csparse_extension g2o_types_slam3d
 )
 
 ## Rename C++ executable without prefix
