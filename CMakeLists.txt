@@ -124,6 +124,9 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
+  ${PROJECT_SOURCE_DIR}
+  ${PROJECT_SOURCE_DIR}/include
+
   ${catkin_INCLUDE_DIRS}
   ${OpenCV_INCLUDE_DIRS}
   ${PCL_INCLUDE_DIRS}
@@ -137,9 +140,28 @@ include_directories(
 
 
 ## Declare a C++ library
-# add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/rosVO.cpp
-# )
+add_library(
+  triangulation
+  ${PROJECT_SOURCE_DIR}/visualSLAM/src/triangulation.cpp
+)
+add_library(
+  optimizationStuff
+  ${PROJECT_SOURCE_DIR}/visualSLAM/src/optimizationStuff.cpp
+)
+add_library(
+  tracking
+  ${PROJECT_SOURCE_DIR}/visualSLAM/src/tracking.cpp
+)
+add_library(
+  rosFuncs
+  ${PROJECT_SOURCE_DIR}/visualSLAM/src/rosFuncs.cpp
+)
+add_library(
+  KFmang
+  ${PROJECT_SOURCE_DIR}/visualSLAM/src/keyFrameManagement.cpp
+)
+
+
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
@@ -158,14 +180,34 @@ add_executable(
 	visualSLAM
 	${PROJECT_SOURCE_DIR}/visualSLAM/include/DloopDet.h
 	${PROJECT_SOURCE_DIR}/visualSLAM/include/monoUtils.h 
-	${PROJECT_SOURCE_DIR}/visualSLAM/include/poseGraph.h
+  ${PROJECT_SOURCE_DIR}/visualSLAM/include/poseGraph.h
+  ${PROJECT_SOURCE_DIR}/visualSLAM/include/visualSLAM.h
+
+  #${PROJECT_SOURCE_DIR}/visualSLAM/src/triangulation.cpp
 	${PROJECT_SOURCE_DIR}/visualSLAM/src/VisualSLAM.cpp
 )
 
+add_executable(
+	BoWtest ${PROJECT_SOURCE_DIR}/visualSLAM/src/bagOfWordsDetector.cpp
+)
+
 target_link_libraries(stereo ${OpenCV_LIBS} ${PCL_LIBRARIES} ${catkin_LIBRARIES} )
+target_link_libraries(
+	BoWtest ${OpenCV_LIBS} ${DBoW2_LIBS}  DBoW2
+)
+target_include_directories(
+	BoWtest PUBLIC ${DBoW2_INCLUDE_DIR}
+)
 
 target_link_libraries(
   visualSLAM 
+
+  triangulation
+  optimizationStuff
+  tracking
+  rosFuncs
+  KFmang
+
   ${OpenCV_LIBS} 
   ${PCL_LIBRARIES} 
   ${catkin_LIBRARIES} 

@@ -157,6 +157,74 @@ double getAbsoluteScale(int frame_id, double &Xpos, double &Ypos, double &Zpos){
     return sqrt((x-x_prev)*(x-x_prev) + (y-y_prev)*(y-y_prev) + (z-z_prev)*(z-z_prev)) ;
 }
 
+Mat drawDeltas(Mat im, vector<Point2f> in1, vector<Point2f> in2){
+    Mat frame;
+    im.copyTo(frame);
+
+    for(int i=0; i<in1.size(); i++){
+        Point2f pt1 = in1[i];
+        Point2f pt2 = in2[i];
+        line(frame, pt1, pt2, Scalar(0,255,0),2);
+        circle(frame, pt1, 5, Scalar(0,0,255));
+        circle(frame, pt2, 5, Scalar(255,0,0));
+    }
+    return frame;
+}
+
+
+void pyrLKtracking(Mat refImg, Mat curImg, vector<Point2f>&refPts, vector<Point2f>&trackPts){
+    vector<Point2f> trPts, inlierRefPts, inlierTracked;
+    vector<uchar> Idx;
+    vector<float> err;
+    calcOpticalFlowPyrLK(refImg, curImg, refPts, trPts,Idx, err);
+
+    for(int i=0; i<refPts.size(); i++){
+        if(Idx[i]==1){
+            inlierRefPts.emplace_back(refPts[i]);
+            inlierTracked.emplace_back(trPts[i]);
+        }
+    }
+    trackPts.clear(); refPts.clear();
+    trackPts = inlierTracked; refPts = inlierRefPts;
+}
+
+
+
+void getColors(Mat& img, vector<Point2f> pts,vector<Point3f>&colorMap){
+    colorMap.clear();
+    colorMap.reserve(pts.size());
+    for(size_t j=0; j<pts.size(); j++){
+        int x = int(pts[j].x); int y = int(pts[j].y);
+        Point3f color3d;
+        Vec3b pixelColor = img.at<Vec3b>(y,x);
+
+        color3d.x = pixelColor[0];
+        color3d.y = pixelColor[1];
+        color3d.z = pixelColor[2];
+        colorMap.emplace_back(color3d);
+    }
+}
+
+vector<int> removeDuplicates(vector<Point2f>&baseref2dFeatures, vector<Point2f>&newref2dFeatures,
+                                    vector<int>&mask, int radius=10){
+    vector<int> res;
+    for(int i=0; i<newref2dFeatures.size(); i++){
+        Point2f&p2 = newref2dFeatures[i];
+        bool inRange=false;
+        
+        for(auto j:mask){
+            Point2f&p1 = baseref2dFeatures[j];
+            if(norm(p1-p2)<radius){
+                inRange=true;
+                break;
+            }
+        }
+
+        if(!inRange){res.push_back(i);}
+    }
+    return res;
+}
+
 void Rmat2Quat(Mat&Rmat, Eigen::Quaterniond&quat){
     Mat Rvec; Rodrigues(Rmat, Rvec);
 	double roll = Rvec.at<double>(0,0);
