@@ -5,7 +5,7 @@ Simple barebones implementation of Stereo RGB SLAM system on KITTI dataset using
 
 Everything about this system is rather same as most SLAM systems except ive ditched feature detectors(ORB/SIFT/SURF etc) ad they often caused localization losses/siginficant drift in pose estimation or straight up slow even with multithreading. instead ive used a dense keypoint sampling method, to keep things simple.
 
-I've mostly implemented everything within a single source file(not recommended but easy to understand) and since theres a ton of libraries included there it might take a while to compile(will add a more effecient build soon). Also i publish ROS topics for:
+ROS topics are published as :
 1. Pose : `geometry_msgs::PoseStamped`
 2. Trajectory : `nav_msgs::Path`
 3. Map : `sensor_msgs::PointCloud2` published as ```pcl::PointCloud<pcl::PointXYZRGB>```
@@ -24,7 +24,7 @@ catkin_make -j$((`nproc`-1))
 source ./devel/setup.bash
 ```
 ## Executing
-As I mentioned before everythings packed into one file so make sure you edit the cpp file to point to the dataset in your machine:
+Make sure you edit the cpp file to point to the dataset in your machine:
 ```
 ./visualSLAM/src/VisualSLAM.cpp
 ```
