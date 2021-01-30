@@ -40,6 +40,8 @@ Im using an absolute case of loop closure which means the closure assumes the no
 
 The loop closure is detected using a modified version of DBoW2 based Templated DLoopdetector against a precomputed vocabulary. `visualSLAM/src/bagOfWordsDetector.cpp`  does just that, again edit the file to point to your data. Ive already computed and provided vocabulary files for KITTI sequences 00, 08, 13.
 
+![map13](media/loopClosure.gif)
+
 Note: This case of assumption of no motion for closure links is not the case where the motion model is more complicated such as EUROC MAV data where aerial vehicle can view the same frame at a later time with significant pose transform between them. In such cases we may have to re estimate poses between these closure links using PnP/Essential Matrix/Homography estimates with bundle adjustments. This part has been left for future work, feel free to add it for better performance.
 
 ## Results
