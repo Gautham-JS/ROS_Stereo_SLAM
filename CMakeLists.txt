@@ -18,7 +18,7 @@ find_package(catkin REQUIRED COMPONENTS
 )
 find_package(OpenCV REQUIRED)
 find_package(PCL 1.2 REQUIRED)
-
+find_package(Pangolin REQUIRED)
 
 SET( EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 ## System dependencies are found with CMake's conventions
@@ -134,7 +134,8 @@ include_directories(
 	${CSPARSE_INCLUDE_DIR}
 	${DBoW2_INCLUDE_DIR}
 	${DLoopDetector_INCLUDE_DIR}
-	${DLib_INCLUDE_DIR}
+  ${DLib_INCLUDE_DIR}
+  ${Pangolin_INCLUDE_DIRS}
 	"/usr/include/eigen3/"
 )
 
@@ -142,23 +143,27 @@ include_directories(
 ## Declare a C++ library
 add_library(
   triangulation
-  ${PROJECT_SOURCE_DIR}/visualSLAM/src/triangulation.cpp
+  ${PROJECT_SOURCE_DIR}/src/triangulation.cpp
 )
 add_library(
   optimizationStuff
-  ${PROJECT_SOURCE_DIR}/visualSLAM/src/optimizationStuff.cpp
+  ${PROJECT_SOURCE_DIR}/src/optimizationStuff.cpp
 )
 add_library(
   tracking
-  ${PROJECT_SOURCE_DIR}/visualSLAM/src/tracking.cpp
+  ${PROJECT_SOURCE_DIR}/src/tracking.cpp
 )
 add_library(
   rosFuncs
-  ${PROJECT_SOURCE_DIR}/visualSLAM/src/rosFuncs.cpp
+  ${PROJECT_SOURCE_DIR}/src/rosFuncs.cpp
 )
 add_library(
   KFmang
-  ${PROJECT_SOURCE_DIR}/visualSLAM/src/keyFrameManagement.cpp
+  ${PROJECT_SOURCE_DIR}/src/keyFrameManagement.cpp
+)
+add_library(
+  GLrender
+  ${PROJECT_SOURCE_DIR}/src/GLrender.cpp
 )
 
 
@@ -178,17 +183,17 @@ add_executable(
 )
 add_executable(
 	visualSLAM
-	${PROJECT_SOURCE_DIR}/visualSLAM/include/DloopDet.h
-	${PROJECT_SOURCE_DIR}/visualSLAM/include/monoUtils.h 
-  ${PROJECT_SOURCE_DIR}/visualSLAM/include/poseGraph.h
-  ${PROJECT_SOURCE_DIR}/visualSLAM/include/visualSLAM.h
+	${PROJECT_SOURCE_DIR}/include/DloopDet.h
+	${PROJECT_SOURCE_DIR}/include/monoUtils.h 
+  ${PROJECT_SOURCE_DIR}/include/poseGraph.h
+  ${PROJECT_SOURCE_DIR}/include/visualSLAM.h
 
   #${PROJECT_SOURCE_DIR}/visualSLAM/src/triangulation.cpp
-	${PROJECT_SOURCE_DIR}/visualSLAM/src/VisualSLAM.cpp
+	${PROJECT_SOURCE_DIR}/src/VisualSLAM.cpp
 )
 
 add_executable(
-	BoWtest ${PROJECT_SOURCE_DIR}/visualSLAM/src/bagOfWordsDetector.cpp
+	BoWtest ${PROJECT_SOURCE_DIR}/src/bagOfWordsDetector.cpp
 )
 
 target_link_libraries(stereo ${OpenCV_LIBS} ${PCL_LIBRARIES} ${catkin_LIBRARIES} )
@@ -207,6 +212,7 @@ target_link_libraries(
   tracking
   rosFuncs
   KFmang
+  GLrender
 
   ${OpenCV_LIBS} 
   ${PCL_LIBRARIES} 
@@ -215,6 +221,7 @@ target_link_libraries(
   ${CSPARSE_LIBS} 
   ${DLib_LIBS} 
   ${DBoW2_LIBS} 
+  ${Pangolin_LIBRARIES}
   DLib DBoW2 g2o_core g2o_stuff g2o_types_sba g2o_csparse_extension g2o_types_slam3d
 )
 
