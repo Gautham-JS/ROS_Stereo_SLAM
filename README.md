@@ -5,7 +5,7 @@ Simple barebones implementation of Stereo RGB SLAM system on KITTI dataset using
 
 Everything about this system is rather same as most SLAM systems except ive ditched feature detectors(ORB/SIFT/SURF etc) ad they often caused localization losses/siginficant drift in pose estimation or straight up slow even with multithreading. instead ive used a dense keypoint sampling method, to keep things simple.
 
-I've mostly implemented everything within a single source file(not recommended but easy to understand) and since theres a ton of libraries included there it might take a while to compile(will add a more effecient build soon). Also i publish ROS topics for:
+ROS topics are published as :
 1. Pose : `geometry_msgs::PoseStamped`
 2. Trajectory : `nav_msgs::Path`
 3. Map : `sensor_msgs::PointCloud2` published as ```pcl::PointCloud<pcl::PointXYZRGB>```
@@ -24,7 +24,7 @@ catkin_make -j$((`nproc`-1))
 source ./devel/setup.bash
 ```
 ## Executing
-As I mentioned before everythings packed into one file so make sure you edit the cpp file to point to the dataset in your machine:
+Make sure you edit the cpp file to point to the dataset in your machine:
 ```
 ./visualSLAM/src/VisualSLAM.cpp
 ```
@@ -35,6 +35,15 @@ Then recompile and run(make sure you got roscore running in another terminal)
 ```
 rosrun ros_slam visualSLAM
 ```
+## Loop Closure
+Im using an absolute case of loop closure which means the closure assumes the nodes it connects to has no translation/totation between them. This case is okay for examples such as KITTI where the vehicles end up at the same pose at loop closure.
+
+The loop closure is detected using a modified version of DBoW2 based Templated DLoopdetector against a precomputed vocabulary. `visualSLAM/src/bagOfWordsDetector.cpp`  does just that, again edit the file to point to your data. Ive already computed and provided vocabulary files for KITTI sequences 00, 08, 13.
+
+![map13](media/loopClosure.gif)
+
+Note: This case of assumption of no motion for closure links is not the case where the motion model is more complicated such as EUROC MAV data where aerial vehicle can view the same frame at a later time with significant pose transform between them. In such cases we may have to re estimate poses between these closure links using PnP/Essential Matrix/Homography estimates with bundle adjustments. This part has been left for future work, feel free to add it for better performance.
+
 ## Results
 The semi dense keypoint tracking is done using Lucas Kanade tracking with RANSAC thresholding between frames *N-1* and *N* as standard matching isnt effective in dense keypoints and is shown as:
 
