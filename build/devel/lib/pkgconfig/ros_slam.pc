@@ -1,8 +1,0 @@
-prefix=/home/gautham/Documents/Projects/ROS-SLAM/build/devel
-
-Name: ros_slam
-Description: Description of ros_slam
-Version: 0.0.0
-Cflags: 
-Libs: -L${prefix}/lib 
-Requires: 
