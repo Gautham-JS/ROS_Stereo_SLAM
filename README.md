@@ -61,6 +61,4 @@ Oh yeah also we publish ```pcl::PointCloud<pcl::PointXYZRGB>``` which means rviz
 
 ![map13](media/KITTI13mapRGB.png)
 
-After mapping is done it can be saved as an RGB .ply file named map.ply, it can be viewed with any 3d rendering tool, heres a render in blender of KITTI sequence 00:
-
-![3dANI](media/ani3d.gif)
+After mapping is done it can be saved as an RGB .ply file named map.ply, it can be viewed with any 3d rendering tool.
