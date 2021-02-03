@@ -26,7 +26,7 @@ source ./devel/setup.bash
 ## Executing
 Make sure you edit the cpp file to point to the dataset in your machine:
 ```
-./visualSLAM/src/VisualSLAM.cpp
+./src/VisualSLAM.cpp
 ```
 and scroll to the main function to edit the paths.
 In adition to the datasets, you also need to point to the ORB vocabulary file forDBoW2 loop closure detection(also in the same place as dataset path). ive already provided vocabulary files for Sequences 00, 08, 13. respectively.
@@ -38,7 +38,7 @@ rosrun ros_slam visualSLAM
 ## Loop Closure
 Im using an absolute case of loop closure which means the closure assumes the nodes it connects to has no translation/totation between them. This case is okay for examples such as KITTI where the vehicles end up at the same pose at loop closure.
 
-The loop closure is detected using a modified version of DBoW2 based Templated DLoopdetector against a precomputed vocabulary. `visualSLAM/src/bagOfWordsDetector.cpp`  does just that, again edit the file to point to your data. Ive already computed and provided vocabulary files for KITTI sequences 00, 08, 13.
+The loop closure is detected using a modified version of DBoW2 based Templated DLoopdetector against a precomputed vocabulary. `./src/bagOfWordsDetector.cpp`  does just that, again edit the file to point to your data. Ive already computed and provided vocabulary files for KITTI sequences 00, 08, 13.
 
 ![map13](media/loopClosure.gif)
 
@@ -49,7 +49,7 @@ The semi dense keypoint tracking is done using Lucas Kanade tracking with RANSAC
 
 ![map13](media/trakin.gif)
 
-The pose estimation is not saved but ive written a lil function in `./visualSLAM/include/monoUtils.h` that can output the trajectory as a CSV file that can be viewed using Python and matplotlib as:
+The pose estimation is not saved but ive written a lil function in `./include/monoUtils.h` that can output the trajectory as a CSV file that can be viewed using Python and matplotlib as:
 
 ![map13](media/posesPlot.gif)
 
