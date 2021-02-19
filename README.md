@@ -1,9 +1,9 @@
 # ROS-SLAM
-Simple barebones implementation of Stereo RGB SLAM system on KITTI dataset using custom Dense feature sampling and 3D-2D PnP localization, loop closure and g2o pose graph optimization.
+Stereo RGB SLAM system on KITTI dataset using custom Dense feature sampling and 3D-2D PnP localization, loop closure and g2o pose graph optimization.
 ![map00](media/KITTI00map.png)
 **PS : i'm still working on this code so the codes may be subject to abrupt change**
 
-Everything about this system is rather same as most SLAM systems except ive ditched feature detectors(ORB/SIFT/SURF etc) ad they often caused localization losses/siginficant drift in pose estimation or straight up slow even with multithreading. instead ive used a dense keypoint sampling method, to keep things simple.
+I've ditched feature detectors(ORB/SIFT/SURF etc) ad they often caused localization losses/siginficant drift in pose estimation or straight up slow even with multithreading. instead ive used a dense keypoint sampling method, to keep things simple.
 
 ROS topics are published as :
 1. Pose : `geometry_msgs::PoseStamped`
