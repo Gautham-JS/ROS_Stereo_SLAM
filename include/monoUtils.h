@@ -164,14 +164,17 @@ Mat drawDeltas(Mat im, vector<Point2f> in1, vector<Point2f> in2){
     for(int i=0; i<in1.size(); i++){
         Point2f pt1 = in1[i];
         Point2f pt2 = in2[i];
-        line(frame, pt1, pt2, Scalar(0,255,0),2);
+        if(pt1.x <= 0  || pt1.y <= 0 || pt2.x <= 0 || pt2.x <= 0){
+            cerr<<"Disaster averted"<<endl;
+            continue;
+        }
+        //cerr<<pt1<<" "<<pt2<<endl;
+        cv::line(frame, pt1, pt2, Scalar(0,255,0),2);
         circle(frame, pt1, 5, Scalar(0,0,255));
         circle(frame, pt2, 5, Scalar(255,0,0));
     }
     return frame;
 }
-
-
 
 
 void getColors(Mat& img, vector<Point2f> pts,vector<Point3f>&colorMap){

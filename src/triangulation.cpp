@@ -1,5 +1,75 @@
 #include "../include/visualSLAM.h"
 
+
+Mat visualSLAM::drawDepthCMap(Mat image, vector<Point3f>&pts3d, vector<Point2f>&ref2d, vector<Point2f>&trk2d){    
+    int thresh = 30;
+    double bias = 15;
+    vector<uchar> mapping;
+    cvtColor(image, image, CV_BGR2GRAY); cvtColor(image, image, CV_GRAY2BGR);
+    //cerr<<"Starting cmapping"<<endl;
+    
+
+    for(int i=0; i<ref2d.size(); i++){
+        //Point2f pt = ref2d[i];
+        Point3f pt3d = pts3d[i];
+        double depth = pt3d.z;
+
+        if(int(depth)<1 || int(depth)>thresh ){
+            mapping.emplace_back(0);
+            continue;
+        }
+
+        mapping.emplace_back(uchar(depth*10));
+    }
+
+    Mat m1d(mapping);
+    Mat m2d = m1d.reshape(1,mapping.size());
+
+    Mat mImg;
+
+    applyColorMap(m2d, mImg, COLORMAP_JET);
+    
+    for(int i=0; i<ref2d.size(); i++){
+        Vec3b &color = mImg.at<Vec3b>(0,i);
+        Point2f pt1 = ref2d[i];
+        Point2f pt2 = trk2d[i];
+
+        uchar depth = m2d.at<uchar>(1,i);
+        if(depth<1){
+            continue;
+        }
+        Point2f sp1, sp2, sp3, sp4;
+        sp1.x = pt1.x - bias/2;     
+        sp1.y = pt1.y + bias/2;
+
+        sp2.x = pt1.x + bias/2;     
+        sp2.y = pt1.y + bias/2;
+
+        sp3.x = pt1.x + bias/2;     
+        sp3.y = pt1.y - bias/2;
+
+        sp4.x = pt1.x - bias/2;     
+        sp4.y = pt1.y - bias/2;
+
+        line(image, sp1, sp2, color, 1);
+        line(image, sp2, sp3, color, 1);
+        line(image, sp3, sp4, color, 1);
+        line(image, sp4, sp1, color, 1);
+
+        circle(image, pt1, 3, color, CV_FILLED);
+        //circle(image, pt1, 2, Scalar(0,255,0), CV_FILLED);
+        //line(image, Point(int(pt1.x), int(pt1.y)), Point(int(pt2.x), int(pt2.y)), Scalar(color[0], color[1], color[2]), 1);
+    }
+
+
+
+    //cerr<<m1d<<endl;
+
+    //imshow("mapped", image);
+
+    return image;
+}
+
 void visualSLAM::stereoTriangulate(Mat im1, Mat im2, 
                             vector<Point3f>&ref3dPts, 
                             vector<Point2f>&ref2dPts){
@@ -16,7 +86,9 @@ void visualSLAM::stereoTriangulate(Mat im1, Mat im2,
 
     if(DENSE_FLAG){
         vector<KeyPoint> dkps;
-        dkps = denseKeypointExtractor(im1, 20);
+        dkps = denseKeypointExtractor(im1, 30);
+
+        //FAST(im1, dkps, 2);
 
         vector<Point2f> refPts;
         for(size_t i=0; i<dkps.size(); i++){
@@ -86,6 +158,9 @@ void visualSLAM::stereoTriangulate(Mat im1, Mat im2,
         localpt.z = est3d.at<float>(2,i) / est3d.at<float>(3,i);
         ref3dCoords.emplace_back(localpt);
     }
+    
+    //drw = drawDepthCMap(im1, ref3dCoords, pt1);
+    //untransformed = ref3dCoords;
     ref3dPts = ref3dCoords;
     ref2dPts = pt1;
 }

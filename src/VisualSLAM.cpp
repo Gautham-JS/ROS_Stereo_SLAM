@@ -1,4 +1,11 @@
+/*
+GAUTHAM-JS , FEB-2021;
+gauthamjs56@gmail.com
+PART OF ROS STERO SLAM, UNDER MIT LICENSE.
+*/
+
 #include "../include/visualSLAM.h"
+#include <chrono>
 
 
 void visualSLAM::initSequence(){
@@ -10,7 +17,7 @@ void visualSLAM::initSequence(){
     // Mat imL = imread(FileName1);
     // Mat imR = imread(filename2);
 
-    initPangolin();
+    //initPangolin();
 
     Mat imL = loadImageL(iter);
     Mat imR = loadImageR(iter);
@@ -35,13 +42,19 @@ void visualSLAM::initSequence(){
     
     cerr<<"\n\n"<<endl;
 
-    mutex renderMutex;
+    
     std::thread renderThread([&](){ 
         DrawTrajectory(isoVector, mapHistory, colorHistory);
     });
 
+    std::chrono::high_resolution_clock::time_point start, end;
+    chrono::duration<double> tDelta;
+    double FPS = 0;
+
     for(int iter=1; iter<4500; iter++){
         //cout<<"PROCESSING FRAME "<<iter<<endl;
+        start = std::chrono::high_resolution_clock::now();
+
         currentImage = loadImageL(iter);
         
         vector<Point3f> trked3dCoords; vector<Point2f> trked2dPts;
@@ -54,7 +67,6 @@ void visualSLAM::initSequence(){
         }
 
         checkLoopDetectorStatus(currentImage,iter);
-
         Mat R;
         Rodrigues(rvec, R);
 
@@ -68,11 +80,15 @@ void visualSLAM::initSequence(){
             isoVector = trans;
             Mat interT = Eigen2cvMat(trans[trans.size()-1]);
             t = interT.t();
+            renderMutex.lock();
             updateOdometry(trans);
+            renderMutex.unlock();
         }
         else{
             stageForPGO(R, t, R, t, false);
         }
+
+
 
         Mat pose4dTransform = Mat::zeros(3,4, CV_64F);
         R.col(0).copyTo(pose4dTransform.col(0));
@@ -80,9 +96,29 @@ void visualSLAM::initSequence(){
         R.col(2).copyTo(pose4dTransform.col(2));
         t.copyTo(pose4dTransform.col(3));
         
+        Mat inv4dTransform = Mat::eye(4,4, CV_64F);  Mat itx = Mat::zeros(3,4, CV_64F);
+        pose4dTransform.row(0).copyTo(inv4dTransform.row(0));
+        pose4dTransform.row(1).copyTo(inv4dTransform.row(1));
+        pose4dTransform.row(2).copyTo(inv4dTransform.row(2));
+
+        cv::invert(inv4dTransform, inv4dTransform);
+
+        inv4dTransform.row(0).copyTo(itx.row(0));
+        inv4dTransform.row(1).copyTo(itx.row(1));
+        inv4dTransform.row(2).copyTo(itx.row(2));
+
+
+        vector<Point3f> dr3d, tr3d; tr3d = trked3dCoords;
+        dr3d = update3dtransformation(tr3d, itx);
+
+        drw = drawDepthCMap(currentImage, dr3d, trked2dPts, inlierReferencePyrLKPts);
+
+
+
         bool reloc = false;
-        if(inliers.size()<400 or LC_FLAG==true){
-            cerr<<"ENTERING KEYFRAME AT "<<iter<<"... "<<"\r";
+
+        if(inliers.size()<200 or LC_FLAG==true){
+            //cerr<<"ENTERING KEYFRAME AT "<<iter<<"... "<<"\n";
             Mat i1 = loadImageL(iter); Mat i2 = loadImageR(iter);
             insertKeyFrames(0, i1, i2, pose4dTransform, ref2dFeatures, ref3dCoords);
 
@@ -134,18 +170,26 @@ void visualSLAM::initSequence(){
         Mat tr = t.clone();
         Mat Rr = R.clone();
 
-        rosPublish(mapHistory, tr,Rr);
-
+        //rosPublish(mapHistory, tr,Rr);
 
 
         t.convertTo(t, CV_32F);
-        Mat frame = drawDeltas(currentImage, inlierReferencePyrLKPts, trked2dPts);
-        
-        resize(frame, frame, Size(), 0.7, 0.7);
+        //Mat frame = drawDeltas(currentImage, inlierReferencePyrLKPts, trked2dPts);
+        //Mat frame = drawDepthCMap(currentImage, )
+        Mat imCpy;
+        resize(drw, imCpy, Size(), 0.7, 0.7);
         Mat reSizOG;
         resize(currentImage, reSizOG, Size(), 0.7, 0.7);
 
-        imshow("Debug", frame);
+        end = std::chrono::high_resolution_clock::now();
+        tDelta = std::chrono::duration_cast<chrono::duration<double>>(end-start);
+
+        renderMutex.lock();
+        trackFPS = 1/tDelta.count();
+        renderMutex.unlock();
+
+
+        imshow("Debug", imCpy);
         imshow("frame",reSizOG);
         ros::spinOnce();
         int k = waitKey(1);

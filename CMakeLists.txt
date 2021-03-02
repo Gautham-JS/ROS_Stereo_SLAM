@@ -196,10 +196,18 @@ add_executable(
 	BoWtest ${PROJECT_SOURCE_DIR}/src/bagOfWordsDetector.cpp
 )
 
+add_executable(
+	ANMS ${PROJECT_SOURCE_DIR}/src/ANMS.cpp
+)
+
 target_link_libraries(stereo ${OpenCV_LIBS} ${PCL_LIBRARIES} ${catkin_LIBRARIES} )
 target_link_libraries(
 	BoWtest ${OpenCV_LIBS} ${DBoW2_LIBS}  DBoW2
 )
+target_link_libraries(
+	ANMS ${OpenCV_LIBS}
+)
+
 target_include_directories(
 	BoWtest PUBLIC ${DBoW2_INCLUDE_DIR}
 )

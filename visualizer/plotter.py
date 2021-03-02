@@ -21,7 +21,8 @@ ygt_values = []
 zgt_values = []
 
 chi = []
-chi_op = []
+chi2 = []
+itr = []
 
 xopt = []
 yopt = []
@@ -35,6 +36,19 @@ print(dataOpt.iloc[:5,0], dataOpt.iloc[:5,2])
 
 xBound = np.max( [np.max(data.iloc[:,0]), np.max(data.iloc[:,3])] )
 ybound = np.max( [np.max(data.iloc[:,2]), np.max(data.iloc[:,5])] )
+
+a_list = list(range(1, len(data.iloc[:,0])))
+
+print(a_list[:5])
+
+def eucDist(x1 , y1, x2, y2):
+    return np.sqrt(
+        (
+            (x1-x2)**2
+        ) + (
+            (y1-y2)**2
+        )
+    )
 
 
 
@@ -53,21 +67,26 @@ def animate(i):
     xopt.append(dataOpt.iloc[i,0])
     yopt.append(-1*dataOpt.iloc[i,2])
 
-
+    err = eucDist(data.iloc[i,0], -1*data.iloc[i,2], data.iloc[i,3], data.iloc[i,5])
+    err2 = eucDist(dataOpt.iloc[i,0], -1*dataOpt.iloc[i,2], data.iloc[i,3], data.iloc[i,5])
+    print(err, err2)
+    chi.append(err**2)
+    chi2.append(err2**2)
+    itr.append(i)
 
     plt.cla()
-    plt.scatter(x_values, y_values, label="Noisy Est.",c="b",s=5)
-    #plt.plot(x_values, y_values, label="Predicted Trajectory",c="r")
-    plt.scatter(xgt_values, ygt_values, label="True Trajectory",c="g",s=5)
-   # plt.plot(xgt_values, ygt_values, label="True Trajectory",c="g")
-    plt.scatter(xopt, yopt, label="Optimized Est.",c="r",s=5)
+    #plt.scatter(x_values, y_values, label="Noisy Est.",c="b",s=5)
+    plt.plot(itr,chi, label="Predicted Trajectory",c="r")
+    #plt.scatter(xgt_values, ygt_values, label="True Trajectory",c="g",s=5)
+    plt.plot(itr, chi2, label="True Trajectory",c="g")
+    #plt.scatter(xopt, yopt, label="Optimized Est.",c="r",s=5)
     #plt.plot(xopt, yopt, label="Optimized Prediction",c="b")
     plt.gcf().autofmt_xdate()
     plt.tight_layout()
-    leg = plt.legend(loc="lower right")
-    for handles in leg.legendHandles:
-        handles.set_sizes([50.0])
-    plt.axis("scaled")
+    # leg = plt.legend(loc="lower right")
+    # for handles in leg.legendHandles:
+    #     handles.set_sizes([50.0])
+    #plt.axis("scaled")
     plt.grid(True)
 
 

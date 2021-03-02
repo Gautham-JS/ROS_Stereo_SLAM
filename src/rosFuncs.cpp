@@ -1,3 +1,9 @@
+/*
+GAUTHAM-JS , FEB-2021;
+gauthamjs56@gmail.com
+PART OF ROS STERO SLAM, UNDER MIT LICENSE.
+*/
+
 #include "../include/visualSLAM.h"
 
 void visualSLAM::SORcloud(vector<Point3f>&ref3d, vector<Point3f>&colorMap){
@@ -14,7 +20,7 @@ void visualSLAM::SORcloud(vector<Point3f>&ref3d, vector<Point3f>&colorMap){
     pcl::StatisticalOutlierRemoval<pcl::PointXYZRGB> sor;
     sor.setInputCloud(bufferCloud);
     sor.setMeanK(200);
-    sor.setStddevMulThresh(0.1);
+    sor.setStddevMulThresh(0.01);
     sor.filter(*bufferCloud);
 
     ref3d.clear(); colorMap.clear();

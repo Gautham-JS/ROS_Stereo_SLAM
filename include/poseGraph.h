@@ -1,3 +1,9 @@
+/*
+GAUTHAM-JS , FEB-2021;
+gauthamjs56@gmail.com
+PART OF ROS STERO SLAM, UNDER MIT LICENSE.
+*/
+
 #ifndef POSE_GRAPH_H
 #define POSE_GRAPH_H
 
@@ -87,21 +93,18 @@ void globalPoseGraph::augmentNode(Eigen::Isometry3d localT, Eigen::Isometry3d gl
     cur->setEstimate(globalT);
     cur->setMarginalized(false);
     cur->setFixed(false);
+    
     Eigen::Isometry3d t = prev->estimate().inverse() * cur->estimate();
-    //cerr<<"break1"<<endl;
+
     e->setVertex(0, prev);
-    //cerr<<"break2"<<endl;
     e->setVertex(1, cur);
-    //cerr<<"break3"<<endl;
     
     e->setMeasurement(t);
-    //cerr<<"break4"<<endl;
     //e->setInformation(information);
     optimizer.addVertex(cur);
     optimizer.addEdge(e);
 
     odometryEdges.emplace_back(e);
-    //edges.emplace_back(e);
     prevVertex = cur;
     vertices.emplace_back(cur);
     globalNodeID++;
@@ -120,9 +123,6 @@ void globalPoseGraph::addLoopClosure(Eigen::Isometry3d T, int fromID){
     odometryEdges.emplace_back(e);
     edges.emplace_back(e);
     optimizer.addEdge(e);
-    //prevVertex = cur;
-    //vertices.emplace_back(cur);
-    //globalNodeID++;
 }
 
 vector<Eigen::Isometry3d> globalPoseGraph::globalOptimize(){

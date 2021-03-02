@@ -301,7 +301,7 @@ int main(int argc, char **argv){
     const char* impathL = "/media/gautham/Seagate Backup Plus Drive/Datasets/ColorSeq/dataset/sequences/00/image_2/%0.6d.png";
     const char* impathR = "/media/gautham/Seagate Backup Plus Drive/Datasets/ColorSeq/dataset/sequences/00/image_3/%0.6d.png";
 
-    StereoProcess* stereo = new StereoProcess(impathL, impathR);
+    StereoProcess *stereo = new StereoProcess(impathL, impathR);
     stereo->mainLoop();
 }
 

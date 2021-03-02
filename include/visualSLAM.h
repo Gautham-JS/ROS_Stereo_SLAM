@@ -74,6 +74,7 @@ class visualSLAM{
         bool SHUTDOWN_FLAG = false;
         bool RENDER_SHUTDOWN = false;
         bool DENSE_FLAG = true;
+        double trackFPS = 0.0;
 
         string absPath;
         const char* lFptr; const char* rFptr;
@@ -87,7 +88,7 @@ class visualSLAM{
         
         Mat referenceImg, currentImage;
         vector<Point3f> referencePoints3D, mapPts, untransformed, colors;
-        vector<Point2f> referencePoints2D;
+        vector<Point2f> referencePoints2D, refDrawPts, trackedDrawPts;
         vector<vector<Point3f>> mapHistory, colorHistory;
         vector<cv::Mat> trajectory;
         vector<cv::Mat> Rhistory;
@@ -97,13 +98,15 @@ class visualSLAM{
 
         vector<Point2f> inlierReferencePyrLKPts;
         Mat canvas = Mat::zeros(X_BOUND, Y_BOUND, CV_8UC3);
-        Mat ret;
+        Mat ret, drw;
 
         globalPoseGraph poseGraph;
 
         std::shared_ptr<OrbLoopDetector> loopDetector;
         std::shared_ptr<OrbVocabulary> voc;
         std::shared_ptr<KeyFrameSelection> KFselector;
+
+        mutex renderMutex;
         
         std::string vocfile;
         std::string plySavepath = "map.ply";
@@ -122,6 +125,8 @@ class visualSLAM{
             param.k = 1;
             param.geom_check = GEOM_DI;
             param.di_levels = 2;
+
+
 
             voc.reset(new OrbVocabulary());
             cerr<<"Loading Place Recognition vocabulary : "<<vocfile<<endl;
@@ -166,6 +171,8 @@ class visualSLAM{
 
         void initPangolin();
         void DrawTrajectory(vector<Eigen::Isometry3d>&poses, vector<vector<Point3f>>&pts3,vector<vector<Point3f>>&colorData);
+
+        Mat drawDepthCMap(Mat image, vector<Point3f>&pts3d, vector<Point2f>&ref2d, vector<Point2f>&trk2d);
 
         void stageForPGO(Mat Rl, Mat tl, Mat Rg, Mat tg, bool loopClose);
         void updateOdometry(vector<Eigen::Isometry3d>&T);

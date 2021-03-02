@@ -1,3 +1,9 @@
+/*
+GAUTHAM-JS , FEB-2021;
+gauthamjs56@gmail.com
+PART OF ROS STERO SLAM, UNDER MIT LICENSE.
+*/
+
 #include "../include/visualSLAM.h"
 
 void visualSLAM::insertKeyFrames(int start, Mat imL, Mat imR, Mat&pose4dTransform, vector<Point2f>&ftrPts, vector<Point3f>&ref3dCoords){
@@ -66,8 +72,12 @@ Mat visualSLAM::loadImageR(int iter){
 
 void visualSLAM::PerspectiveNpointEstimation(Mat&prevImg, Mat&curImg, vector<Point2f>&ref2dPoints, vector<Point3f>&ref3dPoints, 
                                 vector<Point2f>&tracked2dPoints, vector<Point3f>&tracked3dPoints, Mat&rvec, Mat&tvec,vector<int>&inliers){
-
+    
+    vector<Point2f> trkUntr; vector<Point3f> trk3dUntr;
     PyrLKtrackFrame2Frame(referenceImg, currentImage, ref2dPoints, ref3dPoints, tracked2dPoints, tracked3dPoints);
+
+    //cerr<<"Ref 2d "<<ref2dPoints.size()<<" untrans "<<untransformed.size()<<endl;
+    //PyrLKtrackFrame2Frame(referenceImg, currentImage, ref2dPoints, untransformed, trkUntr, trk3dUntr);
     
     Mat distCoeffs = Mat::zeros(4,1,CV_64F);
 

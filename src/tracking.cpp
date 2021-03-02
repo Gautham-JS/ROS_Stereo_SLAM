@@ -51,19 +51,41 @@ void visualSLAM::PyrLKtrackFrame2Frame(Mat refimg, Mat curImg, vector<Point2f>re
 
     calcOpticalFlowPyrLK(refimg, curImg, refPts, trackPts,Idx, err);
 
-    vector<Point2f> inlierRefPts;
+    vector<Point2f> inlierRefPts, finalInlierRef;
     vector<Point3f> inlierRef3dPts;
     vector<Point2f> inlierTracked;
     vector<int> res;
-
+    
+    // for(int j=0; j<refPts.size(); j++){
+    //     if(Idx[j]==1){
+    //         inlierRefPts.push_back(refPts[j]);
+    //         ref3dretPts.push_back(ref3dpts[j]);
+    //         refRetpts.push_back(trackPts[j]);
+    //     }
+    // }
     for(int j=0; j<refPts.size(); j++){
         if(Idx[j]==1){
             inlierRefPts.push_back(refPts[j]);
-            ref3dretPts.push_back(ref3dpts[j]);
-            refRetpts.push_back(trackPts[j]);
+            inlierRef3dPts.push_back(ref3dpts[j]);
+            inlierTracked.push_back(trackPts[j]);
         }
     }
+
+    vector<uchar> inIdx;
+    Mat F = findFundamentalMat(inlierRefPts, inlierTracked,8,1.0,0.99,inIdx);
+
+    
+    for(int j=0; j<refPts.size(); j++){
+        if(inIdx[j]==1){
+            finalInlierRef.push_back(inlierRefPts[j]);
+            ref3dretPts.push_back(inlierRef3dPts[j]);
+            refRetpts.push_back(inlierTracked[j]);
+        }
+    }
+
     //refRetpts = inlierTracked;
     //ref3dretPts = inlierRef3dPts;
-    inlierReferencePyrLKPts = inlierRefPts;
+    refDrawPts = finalInlierRef; trackedDrawPts = refRetpts;
+
+    inlierReferencePyrLKPts = finalInlierRef;
 }
